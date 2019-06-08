@@ -1,0 +1,5 @@
+rootProject.name = 'netty-learning'
+include 'netty-client'
+include 'netty-common'
+include 'netty-server'
+
