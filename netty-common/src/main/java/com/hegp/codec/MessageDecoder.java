@@ -1,4 +1,4 @@
-package com.hegp.coder;
+package com.hegp.codec;
 
 import com.hegp.entity.Message;
 import io.netty.buffer.ByteBuf;

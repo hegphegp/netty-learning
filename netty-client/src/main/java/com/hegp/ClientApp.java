@@ -1,7 +1,7 @@
 package com.hegp;
 
-import com.hegp.coder.MessageDecoder;
-import com.hegp.coder.MessageEncoder;
+import com.hegp.codec.MessageDecoder;
+import com.hegp.codec.MessageEncoder;
 import com.hegp.entity.Message;
 import com.hegp.handler.ClientBusinessHandler;
 import io.netty.bootstrap.Bootstrap;

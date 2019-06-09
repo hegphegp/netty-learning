@@ -1,5 +1,7 @@
 package com.hegp;
 
+import com.hegp.annotation.Action;
+import com.hegp.modules.UserModule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -7,7 +9,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class Application implements CommandLineRunner {
-
+    @Autowired
+    private UserModule userModule;
     @Autowired
     private NettyServer nettyServer;
 
@@ -17,6 +20,8 @@ public class Application implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        userModule.test1();
+        AllModuleAction.execute("userModule", "test1");
         nettyServer.setPort(9123).start();
     }
 }
