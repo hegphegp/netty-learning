@@ -12,8 +12,32 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 
 public class ClientApp {
-    public static void main(String[] args) throws Exception {
+    private String host;
+    private int port;
+    public ClientApp() { }
 
+    public ClientApp(String host, int port) {
+        this.host = host;
+        this.port = port;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public void start() {
         EventLoopGroup group = new NioEventLoopGroup();
 
         try {
@@ -25,15 +49,15 @@ public class ClientApp {
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline()
-                            .addLast(new LengthFieldBasedFrameDecoder(1024 * 1024 * 10, 2, 4, 0, 0, true))
-                            .addLast(new MessageDecoder())
-                            .addLast(new ClientBusinessHandler())
-                            .addLast(new MessageEncoder());  //给服务端发送数据时编码
+                                    .addLast(new LengthFieldBasedFrameDecoder(1024 * 1024 * 10, 2, 4, 0, 0, true))
+                                    .addLast(new MessageDecoder())
+                                    .addLast(new ClientBusinessHandler())
+                                    .addLast(new MessageEncoder());  //给服务端发送数据时编码
                         }
                     });
 
             //异步连接到服务
-            ChannelFuture future = b.connect("127.0.0.1", 8089).sync();
+            ChannelFuture future = b.connect(host, port).sync();
 
             Channel clientChannel = future.channel();
 
@@ -60,6 +84,9 @@ public class ClientApp {
         } finally {
             group.shutdownGracefully();
         }
+    }
 
+    public static void main(String[] args) throws Exception {
+        new ClientApp("127.0.0.1", 9123).start();
     }
 }

@@ -12,6 +12,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import org.springframework.stereotype.Component;
 
 import java.net.InetSocketAddress;
 
@@ -23,12 +24,24 @@ import java.net.InetSocketAddress;
  * http://blog.csdn.net/z69183787/article/details/52625095
  * http://blog.csdn.net/chdhust/article/details/51649184
  */
-public class ServerApp {
+@Component
+public class NettyServer {
 
     private int port;
 
-    public ServerApp(int port) {
+    public NettyServer() { }
+
+    public NettyServer(int port) {
         this.port = port;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public NettyServer setPort(int port) {
+        this.port = port;
+        return this;
     }
 
     public void start() {
@@ -68,9 +81,5 @@ public class ServerApp {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
-    }
-
-    public static void main(String[] args) throws Exception {
-        new ServerApp(8089).start();
     }
 }
