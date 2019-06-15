@@ -74,15 +74,12 @@ public class ClientApp {
                 currentCount -= 1;
             }
 
-            System.out.println("Close Channel");
-            clientChannel.close();
             clientChannel.closeFuture().sync();
-
-            System.out.println("Client Exit");
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             group.shutdownGracefully();
+            System.out.println("Client Exit");
         }
     }
 
