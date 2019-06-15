@@ -1,4 +1,4 @@
-package com.hegp;
+package com.hegp.invoker;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;

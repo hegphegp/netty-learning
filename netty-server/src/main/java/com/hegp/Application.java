@@ -1,6 +1,6 @@
 package com.hegp;
 
-import com.hegp.annotation.Action;
+import com.hegp.invoker.AllModuleAction;
 import com.hegp.modules.UserModule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
