@@ -25,7 +25,6 @@ public class InitAllModuleInfo implements ApplicationListener<ContextRefreshedEv
 		// 查找所有bean当中，包含Module主机的bean
 		Map<String, Object> beans = event.getApplicationContext().getBeansWithAnnotation(Module.class);
 
-		Map<String, ModuleInfo> moduleInfoMap = ModuleInfoInvoker.moduleInfoMap;
 		for(String key:beans.keySet()) {
 			Object bean = beans.get(key);
 			if (bean.getClass().isAnnotationPresent(Module.class)) { // 假如方法上面存在Module注解
@@ -34,13 +33,12 @@ public class InitAllModuleInfo implements ApplicationListener<ContextRefreshedEv
 				if (StringUtils.isEmpty(moduleName)) { // 不允许Module注解的内容为空
 					throw new RuntimeException("In " + clazzName + " not allowed the value of @Module empty");
 				}
-				ModuleInfo moduleInfo = moduleInfoMap.get(moduleName);
+				ModuleInfo moduleInfo = ModuleInfoInvoker.moduleInfoMap.get(moduleName);
 				if (moduleInfo != null) { // 同一个项目，不允许有Module注解内容相同的类
 					throw new RuntimeException(moduleInfo.getInvokeObject().getClass().getName() + " And " + clazzName + " not allowed same value @Module=" + moduleName);
 				}
 				moduleInfo = new ModuleInfo(bean);
-				moduleInfoMap.put(moduleName, moduleInfo);
-				Map<String, Method> actionMap = moduleInfo.getActionMethodMap();
+				ModuleInfoInvoker.moduleInfoMap.put(moduleName, moduleInfo);
 				Method[] methods =  bean.getClass().getDeclaredMethods();
 				for(Method method:methods) {
 					if(method.isAnnotationPresent(Action.class)) { // 假如方法上面存在Action注解
@@ -49,10 +47,10 @@ public class InitAllModuleInfo implements ApplicationListener<ContextRefreshedEv
 						if (StringUtils.isEmpty(actionName)) { // 不允许Action注解的内容为空
 							throw new RuntimeException("In "+clazzName+", "+method.getName()+" not allowed the value of @Action empty");
 						}
-						if (actionMap.containsKey(actionName)) { // 同一个类里面，不允许Action注解的内容相同
-							throw new RuntimeException("In "+clazzName+", "+actionMap.get(actionName).getName()+" And "+method.getName()+" methods Not allowed same value @Action="+actionName);
+						if (moduleInfo.getActionMethodMap().containsKey(actionName)) { // 同一个类里面，不允许Action注解的内容相同
+							throw new RuntimeException("In "+clazzName+", "+moduleInfo.getActionMethodMap().get(actionName).getName()+" And "+method.getName()+" methods Not allowed same value @Action="+actionName);
 						}
-						actionMap.put(actionName, method);
+						moduleInfo.getActionMethodMap().put(actionName, method);
 					}
 				}
 			}

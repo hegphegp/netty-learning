@@ -23,6 +23,5 @@ public class ModuleInfoInvoker {
             e.printStackTrace();
             throw new RuntimeException(e.getLocalizedMessage(), e);
         }
-
     }
 }

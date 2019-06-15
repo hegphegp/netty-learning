@@ -12,57 +12,52 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 
 public class ClientApp {
-    private String host;
-    private int port;
+    private EventLoopGroup eventLoopGroup;
+    private Channel clientChannel;
     public ClientApp() { }
-
-    public ClientApp(String host, int port) {
-        this.host = host;
-        this.port = port;
-    }
-
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public void start() {
-        EventLoopGroup group = new NioEventLoopGroup();
-
+    public void start(String host, int port) {
+        boolean occurredException = false;
         try {
-            Bootstrap b = new Bootstrap();
-            b.group(group)
-                    .channel(NioSocketChannel.class)
-                    .option(ChannelOption.TCP_NODELAY, true)
-                    .handler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        protected void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline()
-                                    .addLast(new LengthFieldBasedFrameDecoder(1024 * 1024 * 10, 2, 4, 0, 0, true))
-                                    .addLast(new MessageDecoder())
-                                    .addLast(new ClientBusinessHandler())
-                                    .addLast(new MessageEncoder());  //给服务端发送数据时编码
-                        }
-                    });
+            eventLoopGroup= new NioEventLoopGroup();
+            Bootstrap bootstrap = new Bootstrap();
+            bootstrap.group(eventLoopGroup)
+             .channel(NioSocketChannel.class)
+             .option(ChannelOption.TCP_NODELAY, true)
+             .handler(new ChannelInitializer<SocketChannel>() {
+                 @Override
+                 protected void initChannel(SocketChannel ch) throws Exception {
+                     ch.pipeline()
+                       .addLast(new LengthFieldBasedFrameDecoder(1024 * 1024 * 10, 2, 4, 0, 0, true))
+                       .addLast(new MessageDecoder())
+                       .addLast(new ClientBusinessHandler())
+                       .addLast(new MessageEncoder());  //给服务端发送数据时编码
+                 }
+             });
 
             //异步连接到服务
-            ChannelFuture future = b.connect(host, port).sync();
+            ChannelFuture future = bootstrap.connect(host, port).sync();
 
-            Channel clientChannel = future.channel();
+            clientChannel = future.channel();
 
-            int currentCount = 10;
+            clientChannel.closeFuture().sync();
 
+        } catch (Exception e) {
+            e.printStackTrace();
+            occurredException = true;
+            throw new RuntimeException(e.getLocalizedMessage(), e);
+        } finally {
+            if (occurredException==true) {
+                if (eventLoopGroup!=null) {
+                    eventLoopGroup.shutdownGracefully();
+                    System.out.println("Client Exit");
+                }
+            }
+        }
+    }
+
+    public void sendMsg() {
+        int currentCount = 10;
+        try {
             while (currentCount > 0) {
                 Thread.sleep(10);
                 String message = String.format("client %s", System.currentTimeMillis());
@@ -73,17 +68,22 @@ public class ClientApp {
                 //System.out.println(msgBody);
                 currentCount -= 1;
             }
-
-            clientChannel.closeFuture().sync();
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
             e.printStackTrace();
-        } finally {
-            group.shutdownGracefully();
+        }
+    }
+
+    public void exit() {
+        if (eventLoopGroup!=null) {
+            eventLoopGroup.shutdownGracefully();
             System.out.println("Client Exit");
         }
     }
 
     public static void main(String[] args) throws Exception {
-        new ClientApp("127.0.0.1", 9123).start();
+        ClientApp clientApp = new ClientApp();
+        clientApp.start("127.0.0.1", 9123);
+        clientApp.sendMsg();
+//        clientApp.exit();
     }
 }
