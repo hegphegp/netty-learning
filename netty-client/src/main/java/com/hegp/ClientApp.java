@@ -2,7 +2,6 @@ package com.hegp;
 
 import com.hegp.codec.MessageDecoder;
 import com.hegp.codec.MessageEncoder;
-import com.hegp.entity.Message;
 import com.hegp.handler.ClientBusinessHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -16,13 +15,13 @@ public class ClientApp {
     private Channel clientChannel;
     public ClientApp() { }
     public void start(String host, int port) {
-        boolean occurredException = false;
         try {
             eventLoopGroup= new NioEventLoopGroup();
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(eventLoopGroup)
              .channel(NioSocketChannel.class)
              .option(ChannelOption.TCP_NODELAY, true)
+             .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000)
              .handler(new ChannelInitializer<SocketChannel>() {
                  @Override
                  protected void initChannel(SocketChannel ch) throws Exception {
@@ -35,41 +34,18 @@ public class ClientApp {
              });
 
             //异步连接到服务
-            ChannelFuture future = bootstrap.connect(host, port).sync();
-
-            clientChannel = future.channel();
-
-            clientChannel.closeFuture().sync();
+            ChannelFuture channelFuture = bootstrap.connect(host, port).sync();
+            clientChannel = channelFuture.channel();
+//            channelFuture.channel().closeFuture().sync();
 
         } catch (Exception e) {
             e.printStackTrace();
-            occurredException = true;
             throw new RuntimeException(e.getLocalizedMessage(), e);
         } finally {
-            if (occurredException==true) {
-                if (eventLoopGroup!=null) {
-                    eventLoopGroup.shutdownGracefully();
-                    System.out.println("Client Exit");
-                }
+            if (eventLoopGroup!=null) {
+                eventLoopGroup.shutdownGracefully();
+                System.out.println("Client Exit");
             }
-        }
-    }
-
-    public void sendMsg() {
-        int currentCount = 10;
-        try {
-            while (currentCount > 0) {
-                Thread.sleep(10);
-                String message = String.format("client %s", System.currentTimeMillis());
-                byte[] body = message.getBytes();
-                Message msgEntity = new Message((byte) 0xAB, (byte) 0xCD, body);
-                //发送数据
-                clientChannel.writeAndFlush(msgEntity);
-                //System.out.println(msgBody);
-                currentCount -= 1;
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
     }
 
@@ -83,7 +59,7 @@ public class ClientApp {
     public static void main(String[] args) throws Exception {
         ClientApp clientApp = new ClientApp();
         clientApp.start("127.0.0.1", 9123);
-        clientApp.sendMsg();
-//        clientApp.exit();
+        ClientMsgThread thread = new ClientMsgThread(clientApp.clientChannel);
+        thread.start();
     }
 }

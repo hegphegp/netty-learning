@@ -4,13 +4,15 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ModuleInfo {
+public class ModuleAction {
+    /** invokeObject : 调用对象，就是每个@Module注解的类的实例对象 */
     private Object invokeObject;
+    /** actionMethodMap : 在@Module注解的实例对象中，存储@Action注解字符串与目标方法的Map映射 */
     private Map<String, Method> actionMethodMap = new HashMap();
 
-    public ModuleInfo() { }
+    public ModuleAction() { }
 
-    public ModuleInfo(Object invokeObject) {
+    public ModuleAction(Object invokeObject) {
         this.invokeObject = invokeObject;
     }
 

@@ -4,20 +4,20 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ModuleInfoInvoker {
-    public final static Map<String, ModuleInfo> moduleInfoMap = new HashMap();
+public class ModuleActionInvoker {
+    public final static Map<String, ModuleAction> moduleActionMap = new HashMap();
 
     public static Object execute(String module, String action) {
-        ModuleInfo moduleInfo = moduleInfoMap.get(module);
-        if (moduleInfo ==null) {
+        ModuleAction moduleAction = moduleActionMap.get(module);
+        if (moduleAction ==null) {
             throw new RuntimeException(module+" module not exists");
         }
-        Method method = moduleInfo.getActionMethodMap().get(action);
+        Method method = moduleAction.getActionMethodMap().get(action);
         if (method==null) {
             throw new RuntimeException("In "+module+" module, "+action+" action not exists");
         }
         try {
-            Object result = method.invoke(moduleInfo.getInvokeObject(), null);
+            Object result = method.invoke(moduleAction.getInvokeObject(), null);
             return result;
         } catch (Exception e) {
             e.printStackTrace();
