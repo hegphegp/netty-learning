@@ -2,6 +2,7 @@ package com.hegp;
 
 import com.hegp.codec.MessageDecoder;
 import com.hegp.codec.MessageEncoder;
+import com.hegp.entity.Message;
 import com.hegp.handler.ClientBusinessHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -26,17 +27,21 @@ public class ClientApp {
                  @Override
                  protected void initChannel(SocketChannel ch) throws Exception {
                      ch.pipeline()
+                             .addLast(new MessageEncoder())
                        .addLast(new LengthFieldBasedFrameDecoder(1024 * 1024 * 10, 2, 4, 0, 0, true))
                        .addLast(new MessageDecoder())
                        .addLast(new ClientBusinessHandler())
-                       .addLast(new MessageEncoder());  //给服务端发送数据时编码
+                       ;  //给服务端发送数据时编码
                  }
              });
 
             //异步连接到服务
             ChannelFuture channelFuture = bootstrap.connect(host, port).sync();
             clientChannel = channelFuture.channel();
-//            channelFuture.channel().closeFuture().sync();
+            ClientMsgThread thread = new ClientMsgThread(clientChannel);
+            thread.start();
+            clientChannel.closeFuture().sync();
+//            channelFuture.channel().closeFuture().sync(); // 没有 .closeFuture().sync() 这句，程序不会阻塞，直接运行结束
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -59,7 +64,5 @@ public class ClientApp {
     public static void main(String[] args) throws Exception {
         ClientApp clientApp = new ClientApp();
         clientApp.start("127.0.0.1", 9123);
-        ClientMsgThread thread = new ClientMsgThread(clientApp.clientChannel);
-        thread.start();
     }
 }

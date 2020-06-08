@@ -19,6 +19,11 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * ChannelInboundHandler   接收消息的handler， 自己被动读取别人发送过来的消息的处理handler
+ * ChannelOutboundHandler  发送消息的handler， 自己给别人发送消息
+ */
+
+/**
  * http://blog.csdn.net/linuu/article/details/51371595
  * http://blog.163.com/linfenliang@126/blog/static/127857195201210821145721/
  *
@@ -60,16 +65,16 @@ public class NettyServer {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ch.pipeline()
-                          .addLast(new LengthFieldBasedFrameDecoder(1024 * 1024 * 10, 2, 4, 0, 0, true))
-                          .addLast(new MessageDecoder())
                           /**
                            * netty官方提供的心跳检测类 IdleStateHandler 的构造函数 public IdleStateHandler(long readerIdleTime, long writerIdleTime, long allIdleTime, TimeUnit unit)
-                           * readerIdleTime: 定义的服务器端读事件的时间，当客户端5s时间没有往服务器写数据（服务器端就是读操作）则触发IdleStateEvent事件
-                           * writerIdleTime: 服务器端写事件的时间，当服务器端7s的时间没有向客户端写数据，则触发IdleStateEvent事件
-                           * allIdleTime   : 当客户端没有往服务器端写数据和服务器端没有往客户端写数据10s的时间，则触发IdleStateEvent事件
+                           * readerIdleTime: 定义的服务器端读事件的时间，当客户端50s时间没有往服务器写数据（服务器端就是读操作）则触发IdleStateEvent事件
+                           * writerIdleTime: 服务器端写事件的时间，当服务器端70s的时间没有向客户端写数据，则触发IdleStateEvent事件
+                           * allIdleTime   : 当客户端没有往服务器端写数据和服务器端没有往客户端写数据100s的时间，则触发IdleStateEvent事件
                            */
                           // 心跳检测，处理空闲状态事件的处理器，在new ServerBusinessHandler()处理心跳逻辑
-                          .addLast(new IdleStateHandler(50,70,100, TimeUnit.SECONDS))
+//                          .addLast(new IdleStateHandler(50,70,100, TimeUnit.SECONDS))
+                          .addLast(new LengthFieldBasedFrameDecoder(1024 * 1024 * 10, 2, 4, 0, 0, true))
+                          .addLast(new MessageDecoder())
                           .addLast(new ServerBusinessHandler())
                           .addLast(new MessageEncoder());
 

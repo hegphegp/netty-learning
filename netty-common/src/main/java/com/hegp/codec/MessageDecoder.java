@@ -9,6 +9,7 @@ public class MessageDecoder extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        System.out.println("0000000000000000000000000000");
         ByteBuf buf = (ByteBuf) msg;
         byte type = buf.readByte();
         byte flag = buf.readByte();

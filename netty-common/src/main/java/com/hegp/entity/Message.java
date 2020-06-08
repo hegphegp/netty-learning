@@ -5,20 +5,18 @@ package com.hegp.entity;
  */
 public class Message {
 
-    private byte isZip;     // 是否压缩
-    private byte zipType;   // 压缩的类型和算法
-    private int version;    // 版本
-    private int requestId;  // 请求id
-    private byte type;      // 消息类型  0xAF表示心跳包, 0xBF表示超时包, 0xCF业务信息包, 订下的规矩是: 心跳包的内容长度为0
-    // 类型  系统编号 0xAB 表示A系统，0xBC 表示B系统
-    // private byte type;
+    private String dataType;     // 数据类型，json，protobuff，thrift，还是其他类型
+    private byte decryptType;    // 对称解密方式，
+    private int version;         // 版本
+    private int requestId;       // 请求id
+    private byte type;           // 消息类型  0xAF表示心跳包, 0xBF表示超时包, 0xCF业务信息包, 订下的规矩是: 心跳包的内容长度为0
 
     // 信息标志  0xAB 表示心跳包    0xBC 表示超时包  0xCD 业务信息包
     private byte flag;
 
     // 主题信息的长度
     private int length;
-
+    private Object originData;
     // 内容
     private byte[] body;
 
@@ -27,7 +25,6 @@ public class Message {
     public Message(byte type, byte flag, byte[] body) {
         this.type = type;
         this.flag = flag;
-        this.length = length;
         this.body = body;
     }
 

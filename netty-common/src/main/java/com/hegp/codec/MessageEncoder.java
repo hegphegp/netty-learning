@@ -10,6 +10,7 @@ public class MessageEncoder extends MessageToByteEncoder<Message> {
 
     @Override
     protected void encode(ChannelHandlerContext ctx, @NotNull Message msg, ByteBuf out) throws Exception {
+        System.out.println("===========================");
         byte[] body = msg.getBody();
 
         int length = body.length;
