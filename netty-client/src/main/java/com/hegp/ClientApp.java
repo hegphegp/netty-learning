@@ -2,7 +2,6 @@ package com.hegp;
 
 import com.hegp.codec.MessageDecoder;
 import com.hegp.codec.MessageEncoder;
-import com.hegp.entity.Message;
 import com.hegp.handler.ClientBusinessHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -10,6 +9,9 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.timeout.IdleStateHandler;
+
+import java.util.concurrent.TimeUnit;
 
 public class ClientApp {
     private EventLoopGroup eventLoopGroup;
@@ -27,11 +29,11 @@ public class ClientApp {
                  @Override
                  protected void initChannel(SocketChannel ch) throws Exception {
                      ch.pipeline()
-                             .addLast(new MessageEncoder())
+                       .addLast( new IdleStateHandler(0, 4, 0, TimeUnit.SECONDS))
                        .addLast(new LengthFieldBasedFrameDecoder(1024 * 1024 * 10, 2, 4, 0, 0, true))
                        .addLast(new MessageDecoder())
                        .addLast(new ClientBusinessHandler())
-                       ;  //给服务端发送数据时编码
+                       .addLast(new MessageEncoder());  //给服务端发送数据时编码
                  }
              });
 

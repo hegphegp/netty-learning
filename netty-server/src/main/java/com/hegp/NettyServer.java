@@ -72,7 +72,7 @@ public class NettyServer {
                            * allIdleTime   : 当客户端没有往服务器端写数据和服务器端没有往客户端写数据100s的时间，则触发IdleStateEvent事件
                            */
                           // 心跳检测，处理空闲状态事件的处理器，在new ServerBusinessHandler()处理心跳逻辑
-//                          .addLast(new IdleStateHandler(50,70,100, TimeUnit.SECONDS))
+                          .addLast(new IdleStateHandler(50,70,100, TimeUnit.SECONDS))
                           .addLast(new LengthFieldBasedFrameDecoder(1024 * 1024 * 10, 2, 4, 0, 0, true))
                           .addLast(new MessageDecoder())
                           .addLast(new ServerBusinessHandler())
