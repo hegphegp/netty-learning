@@ -1,5 +1,6 @@
 package com.hegp.handler;
 
+import com.hegp.constants.Constants;
 import com.hegp.entity.Message;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -111,12 +112,15 @@ public class ServerBusinessHandler extends SimpleChannelInboundHandler<Message> 
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) throws Exception {
-        String message = new String(msg.getBody(), "UTF-8");
-        System.out.println("服务器接收到远程客户端" + ctx.channel().remoteAddress() + "信息是" + message);
-
+        if (Constants.HEARTBEAT_PACKET==msg.getType()) {
+            System.out.println("接收到远程客户端" + ctx.channel().remoteAddress() + "的心跳包");
+        } else {
+            String message = new String(msg.getBody(), "UTF-8");
+            System.out.println("接收到远程客户端" + ctx.channel().remoteAddress() + "信息是" + message);
 //        System.out.println("进行业务处理");
 //        msg.setBody("你发来的信息已处理");
 //        处理完之后，给客户端发送信息
-        ctx.channel().writeAndFlush(msg);
+            ctx.channel().writeAndFlush(msg);
+        }
     }
 }

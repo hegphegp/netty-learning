@@ -28,9 +28,8 @@ public class ClientMsgThread extends Thread {
         while (currentCount > 0) {
             String message = String.format("client %s", System.currentTimeMillis());
             byte[] body = message.getBytes();
-            Message msgEntity = new Message((byte) 0xAB, (byte) 0xCD, body);
             //发送数据
-            clientChannel.writeAndFlush(msgEntity);
+            clientChannel.writeAndFlush(Message.businessPacket(body));
             currentCount -= 1;
         }
     }

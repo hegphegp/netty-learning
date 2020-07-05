@@ -1,5 +1,6 @@
 package com.hegp.handler;
 
+import com.hegp.constants.Constants;
 import com.hegp.entity.Message;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -8,6 +9,8 @@ import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  1.SimpleChatServerHandler 继承自 SimpleChannelInboundHandler，这个类实现了ChannelInboundHandler接口，ChannelInboundHandler 提供了许多事件处理的接口方法，然后你可以覆盖这些方法。现在仅仅只需要继承 SimpleChannelInboundHandler 类而不是你自己去实现接口方法。
@@ -91,13 +94,15 @@ public class ServerHandler extends SimpleChannelInboundHandler<MessageEntity> {
 */
 public class ServerBusinessHandler extends SimpleChannelInboundHandler<Message> {
 
+    private static final Logger logger = LoggerFactory.getLogger(ServerBusinessHandler.class);
+
     public static ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
     /** 每当从服务端收到新的客户端连接时，客户端的 Channel 存入 ChannelGroup列表中，并通知列表中的其他客户端 Channel */
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         Channel incoming = ctx.channel();
-        System.out.println("有新客户端上线"+incoming.remoteAddress() + " channel_id :" + incoming.id());
+        logger.info("有新客户端上线"+incoming.remoteAddress() + " channel_id :" + incoming.id());
         // 添加到channelGroup 通道组
         channels.add(ctx.channel());
     }
@@ -106,19 +111,20 @@ public class ServerBusinessHandler extends SimpleChannelInboundHandler<Message> 
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
         Channel incoming = ctx.channel();
-        System.out.println("有客户端下线"+incoming.remoteAddress() + " channel_id :" + incoming.id());
+        logger.info("有客户端下线"+incoming.remoteAddress() + " channel_id :" + incoming.id());
         channels.remove(ctx.channel());
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Message msg) throws Exception {
-        String message = new String(msg.getBody(), "UTF-8");
-        System.out.println("服务器接收到远程客户端" + ctx.channel().remoteAddress() + "信息是" + message);
+        if (Constants.HEARTBEAT_PACKET==msg.getType()) {
+            logger.info("接收到远程客户端" + ctx.channel().remoteAddress() + "的心跳");
+        } else {
+            String message = new String(msg.getBody(), "UTF-8");
+            logger.info("接收到远程客户端" + ctx.channel().remoteAddress() + "信息是" + message);
 
-//        System.out.println("进行业务处理");
-//        msg.setBody("你发来的信息已处理");
-//        处理完之后，给客户端发送信息
-        ctx.channel().writeAndFlush(msg);
+            ctx.channel().writeAndFlush(msg);
+        }
     }
 
     //管道中上一个Handler触发的事件
@@ -127,23 +133,20 @@ public class ServerBusinessHandler extends SimpleChannelInboundHandler<Message> 
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent event = (IdleStateEvent) evt;
 
-            String eventType = null;
-
             switch (event.state()) {
                 case READER_IDLE:
-                    eventType = "读空闲";
+                    logger.info(ctx.channel().remoteAddress() + "超时事件：读空闲");
+                    ctx.channel().close();
                     break;
-                case WRITER_IDLE:
-                    eventType = "写空闲";
+                case WRITER_IDLE:  // 写空闲
                     break;
                 case ALL_IDLE:
-                    eventType = "读写空闲";
+                    logger.info(ctx.channel().remoteAddress() + "超时事件：读写空闲");
+                    ctx.channel().close();
                     break;
             }
 
-            System.out.println(ctx.channel().remoteAddress() + "超时事件：" + eventType);
 
-            ctx.channel().close();
         }
     }
 }

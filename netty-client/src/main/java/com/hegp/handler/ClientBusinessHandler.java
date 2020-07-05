@@ -1,11 +1,12 @@
 package com.hegp.handler;
 
 import com.hegp.entity.Message;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
 public class ClientHandler extends SimpleChannelInboundHandler<Message> {
@@ -30,11 +31,13 @@ public class ClientHandler extends SimpleChannelInboundHandler<Message> {
 
 public class ClientBusinessHandler extends SimpleChannelInboundHandler<Message> {
 
+    private static final Logger logger = LoggerFactory.getLogger(ClientBusinessHandler.class);
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Message customMsg) throws Exception {
         /** 接收到服务器的信息后，进行处理 */
 //        System.out.println(String.format("ip:%s %s", channelHandlerContext.channel().remoteAddress(), customMsg));
-        System.out.println("接收到服务器的信息是"+customMsg);
+        logger.info("接收到服务器的信息是"+customMsg);
     }
 
     @Override
@@ -42,13 +45,9 @@ public class ClientBusinessHandler extends SimpleChannelInboundHandler<Message> 
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent idleStateEvent = (IdleStateEvent) evt;
             if (idleStateEvent.state() == IdleState.WRITER_IDLE) {
-                System.out.println("客户端发送心跳包");
+                logger.info("客户端发送心跳包");
                 //向服务端发送消息
-//                String message = String.format("client %s", System.currentTimeMillis());
-//                byte[] body = (message+"abc").getBytes();
-                Message msgEntity = new Message((byte) 0xAB, (byte) 0xCD, "".getBytes());
-                ctx.channel().writeAndFlush(msgEntity);
-                // writeAndFlush
+                ctx.channel().writeAndFlush(Message.heartbeatPacket);
             }
 
         } else {

@@ -13,14 +13,14 @@ import io.netty.handler.timeout.IdleStateHandler;
 
 import java.util.concurrent.TimeUnit;
 
-public class ClientApp {
-    private EventLoopGroup eventLoopGroup;
+public class ClientConfig {
+    private EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
+    private Bootstrap bootstrap = new Bootstrap();
+
     private Channel clientChannel;
-    public ClientApp() { }
+    public ClientConfig() { }
     public void start(String host, int port) {
         try {
-            eventLoopGroup= new NioEventLoopGroup();
-            Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(eventLoopGroup)
              .channel(NioSocketChannel.class)
              .option(ChannelOption.TCP_NODELAY, true)
@@ -29,8 +29,8 @@ public class ClientApp {
                  @Override
                  protected void initChannel(SocketChannel ch) throws Exception {
                      ch.pipeline()
-                       .addLast( new IdleStateHandler(0, 4, 0, TimeUnit.SECONDS))
-                       .addLast(new LengthFieldBasedFrameDecoder(1024 * 1024 * 10, 2, 4, 0, 0, true))
+                       .addLast(new IdleStateHandler(0, 4, 0, TimeUnit.SECONDS))
+                       .addLast(new LengthFieldBasedFrameDecoder(1024 * 1024 * 10, 1, 4, 0, 0, true))
                        .addLast(new MessageDecoder())
                        .addLast(new ClientBusinessHandler())
                        .addLast(new MessageEncoder());  //给服务端发送数据时编码
@@ -51,7 +51,7 @@ public class ClientApp {
         } finally {
             if (eventLoopGroup!=null) {
                 eventLoopGroup.shutdownGracefully();
-                System.out.println("Client Exit");
+                System.out.println("ClientConfig Exit");
             }
         }
     }
@@ -59,12 +59,12 @@ public class ClientApp {
     public void exit() {
         if (eventLoopGroup!=null) {
             eventLoopGroup.shutdownGracefully();
-            System.out.println("Client Exit");
+            System.out.println("ClientConfig Exit");
         }
     }
 
     public static void main(String[] args) throws Exception {
-        ClientApp clientApp = new ClientApp();
-        clientApp.start("127.0.0.1", 9123);
+        ClientConfig clientConfig = new ClientConfig();
+        clientConfig.start("127.0.0.1", 9123);
     }
 }

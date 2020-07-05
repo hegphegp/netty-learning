@@ -52,7 +52,6 @@ public class NettyServer {
     }
 
     public void start() {
-
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
 
@@ -73,7 +72,7 @@ public class NettyServer {
                            */
                           // 心跳检测，处理空闲状态事件的处理器，在new ServerBusinessHandler()处理心跳逻辑
                           .addLast(new IdleStateHandler(50,70,100, TimeUnit.SECONDS))
-                          .addLast(new LengthFieldBasedFrameDecoder(1024 * 1024 * 10, 2, 4, 0, 0, true))
+                          .addLast(new LengthFieldBasedFrameDecoder(1024 * 1024 * 10, 1, 4, 0, 0, true))
                           .addLast(new MessageDecoder())
                           .addLast(new ServerBusinessHandler())
                           .addLast(new MessageEncoder());
