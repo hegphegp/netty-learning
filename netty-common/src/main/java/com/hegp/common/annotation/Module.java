@@ -1,15 +1,12 @@
-package com.hegp.annotation;
-
-import org.springframework.stereotype.Component;
+package com.hegp.common.annotation;
 
 import java.lang.annotation.*;
 
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Component
 public @interface Module {
 	
-	String module() default "";
+	byte module();
 
 }

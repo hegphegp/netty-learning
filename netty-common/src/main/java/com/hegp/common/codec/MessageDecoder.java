@@ -1,6 +1,6 @@
-package com.hegp.codec;
+package com.hegp.common.codec;
 
-import com.hegp.entity.Message;
+import com.hegp.common.entity.Message;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;

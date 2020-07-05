@@ -1,4 +1,4 @@
-package com.hegp.invoker;
+package com.hegp.common.invoker;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -8,7 +8,7 @@ public class ModuleAction {
     /** invokeObject : 调用对象，就是每个@Module注解的类的实例对象 */
     private Object invokeObject;
     /** actionMethodMap : 在@Module注解的实例对象中，存储@Action注解字符串与目标方法的Map映射 */
-    private Map<String, Method> actionMethodMap = new HashMap();
+    private Map<Byte, Method> actionMethodMap = new HashMap();
 
     public ModuleAction() { }
 
@@ -24,11 +24,11 @@ public class ModuleAction {
         this.invokeObject = invokeObject;
     }
 
-    public Map<String, Method> getActionMethodMap() {
+    public Map<Byte, Method> getActionMethodMap() {
         return actionMethodMap;
     }
 
-    public void setActionMethodMap(Map<String, Method> actionMethodMap) {
+    public void setActionMethodMap(Map<Byte, Method> actionMethodMap) {
         this.actionMethodMap = actionMethodMap;
     }
 }

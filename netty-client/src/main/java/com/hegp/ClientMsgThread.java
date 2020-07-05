@@ -1,6 +1,6 @@
 package com.hegp;
 
-import com.hegp.entity.Message;
+import com.hegp.common.entity.Message;
 import io.netty.channel.Channel;
 
 public class ClientMsgThread extends Thread {

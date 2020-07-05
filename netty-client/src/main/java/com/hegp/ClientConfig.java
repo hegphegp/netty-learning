@@ -1,7 +1,7 @@
 package com.hegp;
 
-import com.hegp.codec.MessageDecoder;
-import com.hegp.codec.MessageEncoder;
+import com.hegp.common.codec.MessageDecoder;
+import com.hegp.common.codec.MessageEncoder;
 import com.hegp.handler.ClientBusinessHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -14,13 +14,18 @@ import io.netty.handler.timeout.IdleStateHandler;
 import java.util.concurrent.TimeUnit;
 
 public class ClientConfig {
-    private EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
-    private Bootstrap bootstrap = new Bootstrap();
+    private EventLoopGroup eventLoopGroup;
+    private Bootstrap bootstrap;
 
-    private Channel clientChannel;
+    private Channel channel;
+    private ChannelFuture channelFuture;
+
     public ClientConfig() { }
-    public void start(String host, int port) {
+
+    public void connect(String host, int port) {
         try {
+            eventLoopGroup = new NioEventLoopGroup();
+            bootstrap = new Bootstrap();
             bootstrap.group(eventLoopGroup)
              .channel(NioSocketChannel.class)
              .option(ChannelOption.TCP_NODELAY, true)
@@ -38,33 +43,38 @@ public class ClientConfig {
              });
 
             //异步连接到服务
-            ChannelFuture channelFuture = bootstrap.connect(host, port).sync();
-            clientChannel = channelFuture.channel();
-            ClientMsgThread thread = new ClientMsgThread(clientChannel);
-            thread.start();
-            clientChannel.closeFuture().sync();
-//            channelFuture.channel().closeFuture().sync(); // 没有 .closeFuture().sync() 这句，程序不会阻塞，直接运行结束
-
+            channelFuture = bootstrap.connect(host, port).syncUninterruptibly();
+            channel = channelFuture.channel();
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e.getLocalizedMessage(), e);
-        } finally {
-            if (eventLoopGroup!=null) {
-                eventLoopGroup.shutdownGracefully();
-                System.out.println("ClientConfig Exit");
-            }
         }
     }
 
-    public void exit() {
+    public Channel getChannel() {
+        return channel;
+    }
+
+    public void setChannel(Channel channel) {
+        this.channel = channel;
+    }
+
+    public ChannelFuture getChannelFuture() {
+        return channelFuture;
+    }
+
+    public void setChannelFuture(ChannelFuture channelFuture) {
+        this.channelFuture = channelFuture;
+    }
+
+    public void destroy() {
+        if (null != channel) {
+            channel.close();
+        }
         if (eventLoopGroup!=null) {
             eventLoopGroup.shutdownGracefully();
-            System.out.println("ClientConfig Exit");
         }
     }
 
-    public static void main(String[] args) throws Exception {
-        ClientConfig clientConfig = new ClientConfig();
-        clientConfig.start("127.0.0.1", 9123);
-    }
+
 }

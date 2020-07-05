@@ -1,6 +1,6 @@
-package com.hegp.entity;
+package com.hegp.common.entity;
 
-import com.hegp.constants.Constants;
+import com.hegp.common.constants.Constants;
 
 /**
  * 消息协议数据包

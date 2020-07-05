@@ -1,6 +1,6 @@
 package com.hegp.handler;
 
-import com.hegp.entity.Message;
+import com.hegp.common.entity.Message;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleState;

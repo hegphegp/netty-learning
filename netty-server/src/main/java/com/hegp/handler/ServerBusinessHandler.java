@@ -1,7 +1,7 @@
 package com.hegp.handler;
 
-import com.hegp.constants.Constants;
-import com.hegp.entity.Message;
+import com.hegp.common.constants.Constants;
+import com.hegp.common.entity.Message;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;

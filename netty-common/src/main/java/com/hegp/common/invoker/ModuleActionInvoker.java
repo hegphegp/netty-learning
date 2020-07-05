@@ -1,13 +1,13 @@
-package com.hegp.invoker;
+package com.hegp.common.invoker;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ModuleActionInvoker {
-    public final static Map<String, ModuleAction> moduleActionMap = new HashMap();
+    public final static Map<Byte, ModuleAction> moduleActionMap = new HashMap();
 
-    public static Object execute(String module, String action) {
+    public static Object execute(Byte module, Byte action) {
         ModuleAction moduleAction = moduleActionMap.get(module);
         if (moduleAction ==null) {
             throw new RuntimeException(module+" module not exists");

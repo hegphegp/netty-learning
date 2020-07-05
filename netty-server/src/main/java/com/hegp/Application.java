@@ -1,6 +1,7 @@
 package com.hegp;
 
-import com.hegp.invoker.ModuleActionInvoker;
+import com.hegp.common.constants.Constants;
+import com.hegp.common.invoker.ModuleActionInvoker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -17,7 +18,7 @@ public class Application implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        ModuleActionInvoker.execute("userModule", "test1");
-        nettyServer.setPort(9123).start();
+        ModuleActionInvoker.execute(Constants.USER_MODULE, Constants.USER_MODULE_TEST1);
+        nettyServer.bind(9123);
     }
 }
